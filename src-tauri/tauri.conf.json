@@ -1,0 +1,32 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "LocalBank Triage",
+  "version": "0.1.0",
+  "identifier": "com.localbank.triage",
+  "build": {
+    "beforeDevCommand": "cd frontend-app && npm run dev -- --port 5173",
+    "beforeBuildCommand": "cd frontend-app && npm run build",
+    "devUrl": "http://127.0.0.1:5173",
+    "frontendDist": "../frontend-app/dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "LocalBank Triage",
+        "width": 1280,
+        "height": 840,
+        "minWidth": 1000,
+        "minHeight": 700,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; connect-src 'self' http://localhost:* http://127.0.0.1:*; img-src 'self' data:; style-src 'self' 'unsafe-inline'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all"
+  }
+}

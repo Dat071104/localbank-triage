@@ -1,0 +1,18 @@
+[package]
+name = "localbank-triage-desktop"
+version = "0.1.0"
+description = "Local desktop shell for the LocalBank triage workspace"
+authors = ["LocalBank-Triage"]
+edition = "2021"
+license = "UNLICENSED"
+build = "build.rs"
+
+[lib]
+name = "localbank_triage_desktop_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }

@@ -30,3 +30,21 @@ npm run dev
 ```
 
 The UI does not send customer text outside the configured local services. Audit logs are visible only to supervisor, auditor, and admin roles. CS agents cannot approve HIGH or CRITICAL drafts.
+
+## Desktop shell
+
+The Tauri desktop shell uses the same Vite build output and does not bundle backend services. Start the local backend stack separately for real mode, or use default mock mode for a desktop demo.
+
+```powershell
+cd "D:\Project cua Dat\Localbank-triage\frontend-app"
+npm run tauri:dev
+npm run tauri:build
+```
+
+Windows prerequisites for full packaging:
+
+- Rust and Cargo installed and on `PATH`
+- Microsoft Edge WebView2 Runtime
+- Windows build tools required by Rust/Tauri
+
+If Rust/Cargo is absent, `npm run tauri:build` cannot produce an installer; the browser build and Tauri config smoke tests still validate package readiness.
