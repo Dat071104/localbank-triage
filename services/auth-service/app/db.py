@@ -12,7 +12,8 @@ from typing import Iterator
 from .models import Employee, Session
 from .security import hash_access_code, hash_session_token
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+SERVICE_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3] if len(Path(__file__).resolve().parents) > 3 else SERVICE_ROOT
 DEFAULT_DATABASE_URL = "sqlite:///data/auth/auth.db"
 
 
