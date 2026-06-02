@@ -237,6 +237,11 @@ data/
 models/
 mlruns/
 artifacts/
+qdrant_storage/
+storage/
+postgres_data/
+redis_data/
+dump.rdb
 
 # Python
 __pycache__/

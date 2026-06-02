@@ -29,5 +29,16 @@ services:
     volumes:
       - ./knowledge_base:/workspace/knowledge_base:ro
 
+  llm-service:
+    build:
+      context: ./services/llm-service
+    environment:
+      LLM_BACKEND: fake
+      LLM_LOCAL_BASE_URL: http://host.docker.internal:11434
+      LLM_MODEL_NAME: qwen2.5-3b-instruct
+      LLM_PROMPT_VERSION: draft-v1
+    ports:
+      - "8004:8004"
+
 volumes:
   qdrant_data:
