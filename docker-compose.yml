@@ -1,0 +1,33 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    container_name: localbank-qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:6333/readyz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  rag-service:
+    build:
+      context: ./services/rag-service
+    environment:
+      RAG_STORE_BACKEND: qdrant
+      QDRANT_URL: http://qdrant:6333
+      RAG_KB_ROOT: /workspace/knowledge_base
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./knowledge_base:/workspace/knowledge_base:ro
+
+volumes:
+  qdrant_data:
