@@ -1,0 +1,7 @@
+{"case_id":"critical_cs_agent_denied","role":"CS_AGENT","ticket_id":"GW-001","customer_text":"Tôi bị lộ OTP và mất 5 triệu.","urgency_level":"CRITICAL","action":"APPROVE","expected_status_code":403,"expected_final_status":"PENDING_SUPERVISOR"}
+{"case_id":"critical_supervisor_approved","role":"SUPERVISOR","ticket_id":"GW-002","customer_text":"Tôi bị lộ OTP và có giao dịch lạ.","urgency_level":"CRITICAL","action":"APPROVE","expected_status_code":200,"expected_final_status":"APPROVED"}
+{"case_id":"low_cs_agent_approved","role":"CS_AGENT","ticket_id":"GW-003","customer_text":"Tôi hỏi thông tin phí tài khoản.","urgency_level":"LOW","action":"APPROVE","expected_status_code":200,"expected_final_status":"APPROVED"}
+{"case_id":"auditor_read_only","role":"AUDITOR","ticket_id":"GW-004","customer_text":"Tôi hỏi giờ làm việc.","urgency_level":"LOW","action":"CREATE","expected_status_code":403,"expected_final_status":null}
+{"case_id":"rag_no_match_needs_info","role":"CS_AGENT","ticket_id":"GW-005","customer_text":"Tôi hỏi quy định mới chưa rõ.","urgency_level":"LOW","action":"DRAFT","no_evidence":true,"expected_status_code":200,"expected_final_status":"NEEDS_INFO"}
+{"case_id":"downstream_failure_failed_state","role":"CS_AGENT","ticket_id":"GW-006","customer_text":"App bị lỗi và không đăng nhập được.","urgency_level":"MEDIUM","action":"ANALYZE","fail_stage":"classify","expected_status_code":502,"expected_final_status":"FAILED"}
+

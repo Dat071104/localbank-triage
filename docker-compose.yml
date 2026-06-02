@@ -1,4 +1,22 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: localbank-postgres
+    environment:
+      POSTGRES_DB: localbank_triage
+      POSTGRES_USER: localbank
+      POSTGRES_PASSWORD: localbank
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U localbank -d localbank_triage"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   qdrant:
     image: qdrant/qdrant:v1.13.4
     container_name: localbank-qdrant
@@ -40,5 +58,22 @@ services:
     ports:
       - "8004:8004"
 
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    environment:
+      GATEWAY_DATABASE_URL: postgresql+psycopg://localbank:localbank@postgres:5432/localbank_triage
+      AUTH_SERVICE_URL: http://auth-service:8000
+      CLASSIFIER_SERVICE_URL: http://classifier-service:8001
+      URGENCY_SERVICE_URL: http://urgency-service:8002
+      RAG_SERVICE_URL: http://rag-service:8003
+      LLM_SERVICE_URL: http://llm-service:8004
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8005:8005"
+
 volumes:
+  postgres_data:
   qdrant_data:
