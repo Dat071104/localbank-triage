@@ -1,0 +1,3 @@
+{"ticket_id":"RAW-100001","customer_text":"Tôi bị trừ 5 triệu dù không hề giao dịch.","intent":"transaction_problem","sentiment":"negative","urgency":"critical","source":"synthetic_urgent_v1","split":"train"}
+{"ticket_id":"RAW-100002","customer_text":"Tôi bị mất thẻ ATM và cần khóa thẻ ngay.","intent":"card_issue","sentiment":"negative","urgency":"high","source":"synthetic_card_v1","split":"validation"}
+{"ticket_id":"RAW-100003","customer_text":"Cho tôi hỏi hồ sơ vay của tôi đang xử lý đến đâu?","intent":"loan_support","sentiment":"neutral","urgency":"low","source":"synthetic_loan_v1","split":"test"}
