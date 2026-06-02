@@ -257,6 +257,14 @@ node_modules/
 dist/
 build/
 .vite/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
 
 # Editor / OS
 .vscode/
