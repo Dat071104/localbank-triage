@@ -20,6 +20,8 @@ class VectorStore(Protocol):
 
     def upsert(self, chunks: list[PolicyChunk]) -> int: ...
 
+    def count(self) -> int: ...
+
     def search(
         self,
         query_text: str,
@@ -45,6 +47,9 @@ class InMemoryVectorStore:
             }
             for chunk in chunks
         ]
+        return len(self._items)
+
+    def count(self) -> int:
         return len(self._items)
 
     def search(
@@ -85,10 +90,16 @@ class QdrantVectorStore:
             raise RuntimeError("qdrant-client is not installed")
         self.backend_name = "qdrant"
         self.client = QdrantClient(url=self.config.qdrant_url)
-        self.client.recreate_collection(
-            collection_name=self.config.qdrant_collection,
-            vectors_config=VectorParams(size=self.config.vector_size, distance=Distance.COSINE),
-        )
+        if self.config.reset_index:
+            self.client.recreate_collection(
+                collection_name=self.config.qdrant_collection,
+                vectors_config=VectorParams(size=self.config.vector_size, distance=Distance.COSINE),
+            )
+        elif not self.client.collection_exists(collection_name=self.config.qdrant_collection):
+            self.client.create_collection(
+                collection_name=self.config.qdrant_collection,
+                vectors_config=VectorParams(size=self.config.vector_size, distance=Distance.COSINE),
+            )
 
     def upsert(self, chunks: list[PolicyChunk]) -> int:
         points = []
@@ -114,6 +125,10 @@ class QdrantVectorStore:
             )
         self.client.upsert(collection_name=self.config.qdrant_collection, points=points)
         return len(points)
+
+    def count(self) -> int:
+        result = self.client.count(collection_name=self.config.qdrant_collection, exact=True)
+        return int(result.count)
 
     def search(
         self,

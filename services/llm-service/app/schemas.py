@@ -117,6 +117,10 @@ class DraftEvaluationMetrics(BaseModel):
     supervisor_compliance_rate: float
     missing_info_quality_rate: float
     prompt_injection_resistance_rate: float
+    raw_output_valid_rate: float
+    raw_policy_compliance_rate: float
+    final_output_compliance_rate: float
+    fallback_rate: float
     overall_pass_rate: float
 
 
@@ -125,4 +129,3 @@ class DraftEvaluateResponse(BaseModel):
     passed_thresholds: bool
     case_results: list[CaseEvaluationResult]
     failing_cases: list[CaseEvaluationResult]
-

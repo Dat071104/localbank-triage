@@ -3,9 +3,9 @@ services:
     image: postgres:16-alpine
     container_name: localbank-postgres
     environment:
-      POSTGRES_DB: localbank_triage
-      POSTGRES_USER: localbank
-      POSTGRES_PASSWORD: localbank
+      POSTGRES_DB: ${POSTGRES_DB:-localbank_triage}
+      POSTGRES_USER: ${POSTGRES_USER:-localbank}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-localbank}
     ports:
       - "5432:5432"
     volumes:
@@ -46,6 +46,49 @@ services:
       retries: 10
       start_period: 10s
 
+  auth-service:
+    build:
+      context: ./services/auth-service
+    environment:
+      AUTH_DATABASE_URL: sqlite:////data/auth/auth.db
+      AUTH_SESSION_EXPIRE_MINUTES: 60
+    command: >
+      sh -c "python seed_employees.py && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - auth_data:/data/auth
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  classifier-service:
+    build:
+      context: ./services/classifier-service
+    ports:
+      - "8001:8001"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8001/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  urgency-service:
+    build:
+      context: ./services/urgency-service
+    ports:
+      - "8002:8002"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8002/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
   rag-service:
     build:
       context: ./services/rag-service
@@ -53,6 +96,7 @@ services:
       RAG_STORE_BACKEND: qdrant
       QDRANT_URL: http://qdrant:6333
       RAG_KB_ROOT: /workspace/knowledge_base
+      RAG_AUTO_INDEX: "true"
     depends_on:
       qdrant:
         condition: service_healthy
@@ -60,23 +104,35 @@ services:
       - "8003:8003"
     volumes:
       - ./knowledge_base:/workspace/knowledge_base:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8003/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
   llm-service:
     build:
       context: ./services/llm-service
     environment:
-      LLM_BACKEND: fake
-      LLM_LOCAL_BASE_URL: http://host.docker.internal:11434
-      LLM_MODEL_NAME: qwen2.5-3b-instruct
+      LLM_BACKEND: ${LLM_BACKEND:-fake}
+      LLM_LOCAL_BASE_URL: ${LLM_LOCAL_BASE_URL:-http://host.docker.internal:11434}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME:-qwen2.5-3b-instruct}
       LLM_PROMPT_VERSION: draft-v1
     ports:
       - "8004:8004"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8004/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   api-gateway:
     build:
       context: ./services/api-gateway
     environment:
-      GATEWAY_DATABASE_URL: postgresql+psycopg://localbank:localbank@postgres:5432/localbank_triage
+      GATEWAY_DATABASE_URL: ${GATEWAY_DATABASE_URL:-postgresql+psycopg://localbank:localbank@postgres:5432/localbank_triage}
       AUTH_SERVICE_URL: http://auth-service:8000
       CLASSIFIER_SERVICE_URL: http://classifier-service:8001
       URGENCY_SERVICE_URL: http://urgency-service:8002
@@ -85,8 +141,24 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      auth-service:
+        condition: service_healthy
+      classifier-service:
+        condition: service_healthy
+      urgency-service:
+        condition: service_healthy
+      rag-service:
+        condition: service_healthy
+      llm-service:
+        condition: service_healthy
     ports:
       - "8005:8005"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health', timeout=3).read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
   worker-service:
     build:
@@ -99,11 +171,29 @@ services:
       RAG_SERVICE_URL: http://rag-service:8003
       LLM_SERVICE_URL: http://llm-service:8004
       GATEWAY_SERVICE_URL: http://api-gateway:8005
+      WORKER_INTERNAL_TOKEN: ${WORKER_INTERNAL_TOKEN:-local-dev-worker-token}
     depends_on:
       redis:
         condition: service_healthy
+      classifier-service:
+        condition: service_healthy
+      urgency-service:
+        condition: service_healthy
+      rag-service:
+        condition: service_healthy
+      llm-service:
+        condition: service_healthy
+      api-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "from app.celery_app import celery_app; print(celery_app.main)"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
 
 volumes:
+  auth_data:
   postgres_data:
   redis_data:
   qdrant_data:

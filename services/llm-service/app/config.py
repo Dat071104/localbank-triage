@@ -14,6 +14,7 @@ class LLMConfig:
     temperature: float = 0.2
     prompt_version: str = "draft-v1"
     model_version: str = "local-draft-baseline-v1"
+    expose_raw_model_output: bool = False
 
 
 def get_config() -> LLMConfig:
@@ -26,5 +27,5 @@ def get_config() -> LLMConfig:
         temperature=float(os.getenv("LLM_TEMPERATURE", "0.2")),
         prompt_version=os.getenv("LLM_PROMPT_VERSION", "draft-v1"),
         model_version=os.getenv("LLM_MODEL_VERSION", "local-draft-baseline-v1"),
+        expose_raw_model_output=os.getenv("LLM_EXPOSE_RAW_MODEL_OUTPUT", "false").lower() == "true",
     )
-

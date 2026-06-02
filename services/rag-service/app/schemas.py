@@ -6,6 +6,8 @@ from pydantic import BaseModel, Field, field_validator
 class HealthResponse(BaseModel):
     status: str
     backend: str
+    indexed_chunks: int = 0
+    index_ready: bool = False
 
 
 class IndexResponse(BaseModel):

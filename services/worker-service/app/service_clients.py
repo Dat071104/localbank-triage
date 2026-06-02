@@ -60,10 +60,14 @@ class ServiceClients:
         return response.get("draft", response)
 
     def store_result(self, result: dict[str, Any]) -> dict[str, Any]:
-        return {"stored": False, "reason": "gateway result storage endpoint not configured", "ticket_id": result["ticket_id"]}
+        job_id = result.get("job_id") or result["ticket_id"]
+        return self._post(
+            f"{self.config.gateway_service_url}/internal/jobs/{job_id}/result",
+            {"ticket_id": result["ticket_id"], "status": result["status"], "result": result},
+            headers={"X-LocalBank-Worker-Token": self.config.worker_internal_token},
+        )
 
-    def _post(self, url: str, payload: dict[str, Any]) -> dict[str, Any]:
-        response = httpx.post(url, json=payload, timeout=self.config.timeout_seconds)
+    def _post(self, url: str, payload: dict[str, Any], headers: dict[str, str] | None = None) -> dict[str, Any]:
+        response = httpx.post(url, json=payload, headers=headers, timeout=self.config.timeout_seconds)
         response.raise_for_status()
         return response.json()
-

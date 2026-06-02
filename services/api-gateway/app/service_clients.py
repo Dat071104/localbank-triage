@@ -81,7 +81,10 @@ class DownstreamClients:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPError as exc:
-            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Downstream GET failed: {exc}") from exc
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail={"code": "DOWNSTREAM_GET_FAILED", "message": "A downstream service is unavailable.", "stage": "downstream"},
+            ) from exc
 
     def _post(self, url: str, payload: dict[str, Any]) -> dict[str, Any]:
         try:
@@ -89,7 +92,19 @@ class DownstreamClients:
             response.raise_for_status()
             return response.json()
         except httpx.HTTPError as exc:
-            raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=f"Downstream POST failed: {exc}") from exc
+            stage = "downstream"
+            if "classifier" in url:
+                stage = "classifier"
+            elif "urgency" in url:
+                stage = "urgency"
+            elif "rag" in url:
+                stage = "rag"
+            elif "llm" in url:
+                stage = "llm"
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail={"code": "DOWNSTREAM_POST_FAILED", "message": "A downstream service is unavailable.", "stage": stage},
+            ) from exc
 
 
 def get_clients() -> DownstreamClients:
@@ -103,4 +118,3 @@ def get_current_user(
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing bearer token")
     return clients.verify_token(credentials.credentials)
-

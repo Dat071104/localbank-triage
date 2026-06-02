@@ -31,7 +31,7 @@ class RuleBasedEvaluationClients:
         elif any(k in text for k in ("đăng nhập", "login")):
             intent = "ACCOUNT_ACCESS"
         elif any(k in text for k in ("app", "ứng dụng", "crash")):
-            intent = "APP_TECHNICAL"
+            intent = "MOBILE_APP_ERROR"
         elif "phí" in text:
             intent = "FEE_OR_CHARGE"
         else:
@@ -50,7 +50,7 @@ class RuleBasedEvaluationClients:
         critical = any(k in text for k in ("otp", "giao dịch lạ", "không giao dịch", "mất tiền", "hack", "chiếm tài khoản", "mất thẻ"))
         if critical:
             level, score = "CRITICAL", 95
-        elif classification["intent"] in {"ACCOUNT_ACCESS", "APP_TECHNICAL"}:
+        elif classification["intent"] in {"ACCOUNT_ACCESS", "MOBILE_APP_ERROR"}:
             level, score = "MEDIUM", 55
         elif classification["intent"] == "FEE_OR_CHARGE":
             level, score = "MEDIUM", 42
@@ -71,7 +71,7 @@ class RuleBasedEvaluationClients:
             "ACCOUNT_SECURITY": "FRAUD-003",
             "CARD_ISSUE": "CARD-001",
             "ACCOUNT_ACCESS": "ACC-001",
-            "APP_TECHNICAL": "APP-001",
+            "MOBILE_APP_ERROR": "APP-001",
             "FEE_OR_CHARGE": "FEE-001",
             "GENERAL_INQUIRY": "ACC-001",
         }

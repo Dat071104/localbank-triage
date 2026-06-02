@@ -3,6 +3,6 @@
 {"case_id":"lost_card","ticket_id":"E2E-003","customer_text":"Tôi mất thẻ và lo bị mất tiền.","expected_intent":"CARD_ISSUE","expected_min_urgency":"CRITICAL","expected_policy_id":"CARD-001"}
 {"case_id":"account_takeover","ticket_id":"E2E-004","customer_text":"Tài khoản của tôi bị hack và có người đăng nhập lạ.","expected_intent":"ACCOUNT_SECURITY","expected_min_urgency":"CRITICAL","expected_policy_id":"FRAUD-003"}
 {"case_id":"login_failure","ticket_id":"E2E-005","customer_text":"Tôi không đăng nhập được app mobile banking.","expected_intent":"ACCOUNT_ACCESS","expected_min_urgency":"MEDIUM","expected_policy_id":"ACC-001"}
-{"case_id":"app_crash","ticket_id":"E2E-006","customer_text":"Ứng dụng mobile banking bị crash liên tục.","expected_intent":"APP_TECHNICAL","expected_min_urgency":"MEDIUM","expected_policy_id":"APP-001"}
+{"case_id":"app_crash","ticket_id":"E2E-006","customer_text":"Ứng dụng mobile banking bị crash liên tục.","expected_intent":"MOBILE_APP_ERROR","expected_min_urgency":"MEDIUM","expected_policy_id":"APP-001"}
 {"case_id":"fee_complaint","ticket_id":"E2E-007","customer_text":"Tôi bị thu phí duy trì cao hơn bình thường.","expected_intent":"FEE_OR_CHARGE","expected_min_urgency":"MEDIUM","expected_policy_id":"FEE-001"}
 {"case_id":"general_inquiry","ticket_id":"E2E-008","customer_text":"Cho tôi hỏi giờ làm việc của chi nhánh.","expected_intent":"GENERAL_INQUIRY","expected_min_urgency":"LOW","expected_policy_id":"ACC-001"}

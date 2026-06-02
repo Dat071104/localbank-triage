@@ -98,3 +98,14 @@ class WorkflowAuditLog(Base):
 
     ticket: Mapped[Ticket] = relationship(back_populates="audit_logs")
 
+
+class WorkerJobResult(Base):
+    __tablename__ = "worker_job_results"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    job_id: Mapped[str] = mapped_column(String(128), unique=True, index=True)
+    ticket_id: Mapped[str] = mapped_column(String(64), index=True)
+    status: Mapped[str] = mapped_column(String(32), index=True)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, onupdate=utcnow)

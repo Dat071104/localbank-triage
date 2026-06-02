@@ -28,7 +28,7 @@ def login_payload(**overrides: str) -> dict[str, str]:
     payload = {
         "employee_id": "LBT-CS-0001",
         "full_name": "Nguyễn Hà Trâm",
-        "access_code": "Tram@112233",
+        "access_code": "LOCAL_ONLY_CHANGE_ME_CS_AGENT",
         "device_id": "LOCAL-DESKTOP-01",
     }
     payload.update(overrides)
@@ -141,7 +141,7 @@ def test_db_does_not_store_plaintext_and_attempts_are_recorded(
             "SELECT access_code_hash FROM employees WHERE employee_id = ?",
             ("LBT-CS-0001",),
         ).fetchall()
-        assert rows[0][0] != "Tram@112233"
+        assert rows[0][0] != "LOCAL_ONLY_CHANGE_ME_CS_AGENT"
         attempts = connection.execute(
             "SELECT success, failure_reason FROM login_attempts ORDER BY id"
         ).fetchall()

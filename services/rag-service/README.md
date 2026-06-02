@@ -23,10 +23,18 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8003 --app-dir .\services\r
 
 Use `$env:RAG_STORE_BACKEND="memory"` for local debugging without Docker.
 
+Normal startup never recreates the Qdrant collection. Compose sets `RAG_AUTO_INDEX=true`, so an empty collection is indexed from the local KB. Destructive reset is opt-in only with `RAG_RESET_INDEX=true`.
+
 ## Index Policies
 
 ```powershell
 Invoke-RestMethod -Method Post -Uri http://127.0.0.1:8003/rag/index
+```
+
+Repo-root helper:
+
+```powershell
+python .\scripts\init_rag_index.py --url http://127.0.0.1:8003
 ```
 
 ## Search Policies

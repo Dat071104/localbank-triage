@@ -4,7 +4,7 @@ Local FastAPI authentication service for the LocalBank-Triage staff access gate.
 
 ## Demo Credentials
 
-`employees_seed.json` contains local demo-only credentials for development and testing. The seed file contains plaintext access codes, but the SQLite database stores only PBKDF2 hashes.
+`employees_seed.json` contains local demo-only placeholder access codes. They are intentionally named `LOCAL_ONLY_CHANGE_ME_*`; replace them in any private environment. The SQLite database stores only PBKDF2 hashes.
 
 ## Environment
 
