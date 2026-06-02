@@ -56,3 +56,40 @@ test("mock mode app loads runtime status from clean state", async ({ page }) => 
   await expect(page.getByText("auth-service")).toBeVisible();
   await expect(page.getByText("Mock login is active")).toBeVisible();
 });
+
+test("LOW general inquiry can be approved by CS_AGENT", async ({ page }) => {
+  await login(page, "CS_AGENT");
+  await page.getByLabel("New customer ticket").fill("Khach hoi gio lam viec va lai suat tiet kiem.");
+  await page.getByRole("button", { name: "Create ticket" }).click();
+  await page.getByRole("button", { name: "Analyze and draft" }).click();
+  await expect(page.getByText("LOW - routine", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Approve reviewed draft" })).toBeEnabled();
+  await page.getByRole("button", { name: "Approve reviewed draft" }).click();
+  await expect(page.getByText(/APPROVE recorded/i)).toBeVisible();
+});
+
+test("no policy context shows manual review and blocks approval", async ({ page }) => {
+  await login(page, "SUPERVISOR");
+  await page.getByLabel("New customer ticket").fill("no_policy Khach hoi tinh huong khong co chinh sach phu hop.");
+  await page.getByRole("button", { name: "Create ticket" }).click();
+  await page.getByRole("button", { name: "Analyze and draft" }).click();
+  await expect(page.getByText("No policy match")).toBeVisible();
+  await expect(page.getByText("NO_POLICY_CONTEXT")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Approve reviewed draft" })).toBeDisabled();
+});
+
+test("unsafe fallback draft is flagged and cannot be approved", async ({ page }) => {
+  await login(page, "SUPERVISOR");
+  await page.getByLabel("New customer ticket").fill("unsafe_draft Khach bao lo OTP va muon hoan tien ngay.");
+  await page.getByRole("button", { name: "Create ticket" }).click();
+  await page.getByRole("button", { name: "Analyze and draft" }).click();
+  await expect(page.getByText("UNSAFE_DRAFT")).toBeVisible();
+  await expect(page.getByText("Draft safety validation failed")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Approve reviewed draft" })).toBeDisabled();
+});
+
+test("empty queue shows useful empty state", async ({ page }) => {
+  await login(page, "ADMIN");
+  await page.getByRole("button", { name: "Clear mock queue" }).click();
+  await expect(page.getByText("No tickets in queue")).toBeVisible();
+});

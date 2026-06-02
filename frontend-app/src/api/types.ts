@@ -124,4 +124,5 @@ export interface AppApi {
   getAudit(ticketId: string): Promise<AuditLog[]>;
   getRuntimeStatus(): Promise<RuntimeStatus[]>;
   resetMock?(): void;
+  clearMockTickets?(): void;
 }

@@ -51,6 +51,16 @@ export function TicketQueuePage({ onOpenTicket }: { onOpenTicket: (ticketId: str
           <h1>Ticket Queue</h1>
         </div>
         <button onClick={load}>Refresh queue</button>
+        {api.mode === "mock" && (
+          <button
+            onClick={() => {
+              api.clearMockTickets?.();
+              void load();
+            }}
+          >
+            Clear mock queue
+          </button>
+        )}
       </header>
       {error && <ErrorBanner error={error} />}
       <RoleGuard role={employee.role} allowed={["CS_AGENT", "SUPERVISOR", "ADMIN"]} fallback={<p className="restriction-note">Auditor role is read-only and cannot create tickets.</p>}>

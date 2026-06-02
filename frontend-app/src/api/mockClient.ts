@@ -147,6 +147,12 @@ export function createMockClient(): AppApi {
     },
     resetMock(): void {
       state = defaultState();
+    },
+    clearMockTickets(): void {
+      state.tickets = [];
+      state.analyses = {};
+      state.drafts = {};
+      state.audits = {};
     }
   };
 }
