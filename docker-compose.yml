@@ -17,6 +17,20 @@ services:
       retries: 10
       start_period: 10s
 
+  redis:
+    image: redis:7-alpine
+    container_name: localbank-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
   qdrant:
     image: qdrant/qdrant:v1.13.4
     container_name: localbank-qdrant
@@ -74,6 +88,22 @@ services:
     ports:
       - "8005:8005"
 
+  worker-service:
+    build:
+      context: ./services/worker-service
+    environment:
+      WORKER_BROKER_URL: redis://redis:6379/0
+      WORKER_RESULT_BACKEND: redis://redis:6379/1
+      CLASSIFIER_SERVICE_URL: http://classifier-service:8001
+      URGENCY_SERVICE_URL: http://urgency-service:8002
+      RAG_SERVICE_URL: http://rag-service:8003
+      LLM_SERVICE_URL: http://llm-service:8004
+      GATEWAY_SERVICE_URL: http://api-gateway:8005
+    depends_on:
+      redis:
+        condition: service_healthy
+
 volumes:
   postgres_data:
+  redis_data:
   qdrant_data:
