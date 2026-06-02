@@ -1,0 +1,38 @@
+[
+  {
+    "employee_id": "LBT-CS-0001",
+    "full_name": "Nguyễn Hà Trâm",
+    "display_name": "Trâm Nguyễn",
+    "access_code": "Tram@112233",
+    "role": "CS_AGENT",
+    "department": "Customer Support",
+    "branch_code": "HCM-01"
+  },
+  {
+    "employee_id": "LBT-SUP-0001",
+    "full_name": "Lê Minh Quân",
+    "display_name": "Quân Lê",
+    "access_code": "Quan@445566",
+    "role": "SUPERVISOR",
+    "department": "Customer Support",
+    "branch_code": "HCM-01"
+  },
+  {
+    "employee_id": "LBT-AUD-0001",
+    "full_name": "Phạm Thu Linh",
+    "display_name": "Linh Phạm",
+    "access_code": "Linh@778899",
+    "role": "AUDITOR",
+    "department": "Risk Audit",
+    "branch_code": "HCM-01"
+  },
+  {
+    "employee_id": "LBT-ADM-0001",
+    "full_name": "Đỗ Minh Anh",
+    "display_name": "Minh Anh",
+    "access_code": "Admin@990011",
+    "role": "ADMIN",
+    "department": "Platform Operations",
+    "branch_code": "HCM-01"
+  }
+]
