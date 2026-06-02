@@ -29,3 +29,20 @@ python .\services\classifier-service\data_pipeline\prepare_dataset.py --input da
 ```powershell
 python -m pytest .\services\classifier-service\tests\test_data_pipeline.py -q
 ```
+
+## Phase 4 Classifier API
+
+The classifier starts with deterministic Vietnamese keyword rules and preserves a stable API contract so PhoBERT or another local model can replace the rule engine later.
+
+## Run API
+
+```powershell
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8001 --app-dir .\services\classifier-service
+```
+
+## API Tests
+
+```powershell
+python -m pytest .\services\classifier-service\tests\test_classifier_rules.py -q
+python -m pytest .\services\classifier-service\tests\test_classifier_api.py -q
+```
