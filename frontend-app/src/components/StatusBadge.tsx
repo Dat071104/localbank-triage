@@ -1,3 +1,6 @@
+import { statusLabel, useI18n } from "../i18n";
+
 export function StatusBadge({ status }: { status: string }) {
-  return <span className="badge neutral">{status.replaceAll("_", " ")}</span>;
+  const { t } = useI18n();
+  return <span className="badge neutral">{statusLabel(status, t)}</span>;
 }

@@ -7,20 +7,20 @@ test.describe("real backend stack smoke", () => {
     const ticketText = `REAL_SMOKE_${Date.now()} Khach bao lo OTP va co giao dich 10 trieu khong hop le.`;
 
     await page.goto("/");
-    await page.getByRole("button", { name: "Enter workspace" }).click();
-    await expect(page.getByRole("heading", { name: "Ticket Queue" })).toBeVisible();
-    await expect(page.getByText("Mode: real")).toBeVisible();
+    await page.getByRole("button", { name: "Vào không gian xử lý" }).click();
+    await expect(page.getByRole("heading", { name: "Hàng đợi ticket" })).toBeVisible();
+    await expect(page.getByText("Chế độ: real")).toBeVisible();
 
-    await page.getByLabel("New customer ticket").fill(ticketText);
-    await page.getByRole("button", { name: "Create ticket" }).click();
-    await page.getByRole("button", { name: "Analyze and draft" }).click();
+    await page.getByLabel("Ticket khách hàng mới").fill(ticketText);
+    await page.getByRole("button", { name: "Tạo ticket" }).click();
+    await page.getByRole("button", { name: "Phân tích và tạo bản nháp" }).click();
 
     await expect(page.getByText(/CRITICAL/i)).toBeVisible({ timeout: 25_000 });
-    await expect(page.getByLabel("Draft editor")).toBeVisible();
-    await expect(page.getByRole("button", { name: "Approve reviewed draft" })).toBeDisabled();
-    await expect(page.getByRole("button", { name: "Request Supervisor Approval" })).toBeVisible();
+    await expect(page.getByLabel("Trình soạn bản nháp")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Duyệt bản nháp đã kiểm tra" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Yêu cầu supervisor duyệt" })).toBeVisible();
 
-    await page.getByRole("button", { name: "Runtime Status" }).click();
+    await page.getByRole("button", { name: "Trạng thái hệ thống" }).click();
     await expect(page.getByText("auth-service", { exact: true })).toBeVisible();
     await expect(page.getByText("api-gateway", { exact: true })).toBeVisible();
   });

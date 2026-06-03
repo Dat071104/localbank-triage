@@ -9,7 +9,7 @@ export class ApiError extends Error {
   status: number;
   recovery: string;
 
-  constructor(message: string, status = 0, recovery = "Check Local Runtime Status and retry the action.") {
+  constructor(message: string, status = 0, recovery = "Kiểm tra trạng thái hệ thống local rồi thử lại thao tác.") {
     super(message);
     this.name = "ApiError";
     this.status = status;
@@ -31,17 +31,17 @@ async function fetchJson<T>(url: string, options: RequestInit = {}, timeoutMs = 
     });
     const json = await response.json().catch(() => ({}));
     if (!response.ok) {
-      const message = json?.error?.message ?? json?.detail ?? "Request failed.";
-      const stage = json?.error?.stage ? ` Stage: ${json.error.stage}.` : "";
+      const message = json?.error?.message ?? json?.detail ?? "Yêu cầu thất bại.";
+      const stage = json?.error?.stage ? ` Bước lỗi: ${json.error.stage}.` : "";
       throw new ApiError(`${message}${stage}`, response.status);
     }
     return json as T;
   } catch (error) {
     if (error instanceof ApiError) throw error;
     if (error instanceof DOMException && error.name === "AbortError") {
-      throw new ApiError("The local service did not respond before the timeout.", 0, "Confirm the backend stack is running, then retry.");
+      throw new ApiError("Dịch vụ local không phản hồi trước thời gian chờ.", 0, "Xác nhận backend stack đang chạy rồi thử lại.");
     }
-    throw new ApiError("Cannot reach the local backend service.", 0, "Start the LocalBank services or switch to mock mode.");
+    throw new ApiError("Không kết nối được dịch vụ backend local.", 0, "Khởi động các dịch vụ LocalBank hoặc chuyển sang chế độ mock.");
   } finally {
     window.clearTimeout(timer);
   }
@@ -120,21 +120,21 @@ class RealClient implements AppApi {
     return [
       statusFromResult("auth-service", checks[0]),
       statusFromResult("api-gateway", checks[1]),
-      { name: "postgres/redis/qdrant/llm", status: "unknown", detail: "Checked through gateway workflow calls; start the Docker stack for real mode." }
+      { name: "postgres/redis/qdrant/llm", status: "unknown", detail: "Được kiểm tra gián tiếp qua workflow gateway; hãy khởi động Docker stack cho chế độ real." }
     ];
   }
 
   private authHeaders(): HeadersInit {
-    if (!this.token) throw new ApiError("You are not logged in.", 401, "Log in again.");
+    if (!this.token) throw new ApiError("Bạn chưa đăng nhập.", 401, "Đăng nhập lại.");
     return { Authorization: `Bearer ${this.token}` };
   }
 }
 
 function statusFromResult(name: string, result: PromiseSettledResult<{ status: string }>): RuntimeStatus {
   if (result.status === "fulfilled" && result.value.status === "ok") {
-    return { name, status: "ok", detail: "Reachable on localhost." };
+    return { name, status: "ok", detail: "Kết nối được trên localhost." };
   }
-  return { name, status: "offline", detail: "Not reachable from the frontend runtime." };
+  return { name, status: "offline", detail: "Frontend runtime không kết nối được." };
 }
 
 export function createApiClient(): AppApi {

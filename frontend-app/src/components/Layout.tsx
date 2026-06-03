@@ -1,12 +1,13 @@
 import { useAuth } from "../auth/AuthContext";
+import { roleLabel, useI18n } from "../i18n";
 
 export type PageKey = "queue" | "workspace" | "audit" | "runtime";
 
-const labels: Record<PageKey, string> = {
-  queue: "Ticket Queue",
-  workspace: "Triage Workspace",
-  audit: "Audit History",
-  runtime: "Runtime Status"
+const labelKeys: Record<PageKey, "nav.queue" | "nav.workspace" | "nav.audit" | "nav.runtime"> = {
+  queue: "nav.queue",
+  workspace: "nav.workspace",
+  audit: "nav.audit",
+  runtime: "nav.runtime"
 };
 
 export function Layout({
@@ -21,6 +22,8 @@ export function Layout({
   children: React.ReactNode;
 }) {
   const { employee, logout, api } = useAuth();
+  const { language, setLanguage, t } = useI18n();
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
@@ -28,19 +31,23 @@ export function Layout({
           <p className="eyebrow">LocalBank</p>
           <h1>Triage</h1>
         </div>
-        <nav aria-label="Main">
-          {(Object.keys(labels) as PageKey[]).map((item) => (
+        <div className="language-toggle" aria-label={t("language.label")}>
+          <button type="button" className={language === "vi" ? "active" : ""} onClick={() => setLanguage("vi")}>VI</button>
+          <button type="button" className={language === "en" ? "active" : ""} onClick={() => setLanguage("en")}>EN</button>
+        </div>
+        <nav aria-label={t("nav.aria")}>
+          {(Object.keys(labelKeys) as PageKey[]).map((item) => (
             <button key={item} className={page === item ? "active" : ""} onClick={() => onPageChange(item)}>
-              {labels[item]}
+              {t(labelKeys[item])}
             </button>
           ))}
         </nav>
         <div className="session-card">
           <strong>{employee?.display_name}</strong>
-          <span>{employee?.role.replace("_", " ")}</span>
-          <span>Mode: {api.mode}</span>
-          {selectedTicketId && <span>Ticket: {selectedTicketId}</span>}
-          <button type="button" onClick={logout}>Logout</button>
+          {employee && <span>{roleLabel(employee.role, t)}</span>}
+          <span>{t("session.mode")}: {api.mode}</span>
+          {selectedTicketId && <span>{t("session.ticket")}: {selectedTicketId}</span>}
+          <button type="button" onClick={logout}>{t("session.logout")}</button>
         </div>
       </aside>
       <section className="content-shell">{children}</section>

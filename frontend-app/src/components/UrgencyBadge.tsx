@@ -1,16 +1,12 @@
 import type { UrgencyLevel } from "../api/types";
-
-const labels: Record<UrgencyLevel, string> = {
-  LOW: "LOW - routine",
-  MEDIUM: "MEDIUM - monitor",
-  HIGH: "HIGH - supervisor review",
-  CRITICAL: "CRITICAL - supervisor required"
-};
+import { urgencyLabel, useI18n } from "../i18n";
 
 export function UrgencyBadge({ level, score }: { level: UrgencyLevel; score?: number }) {
+  const { t } = useI18n();
+  const label = urgencyLabel(level, t);
   return (
-    <span className={`badge urgency ${level.toLowerCase()}`} aria-label={`Urgency ${labels[level]}`}>
-      {labels[level]}{typeof score === "number" ? ` (${score})` : ""}
+    <span className={`badge urgency ${level.toLowerCase()}`} aria-label={`Urgency ${label}`}>
+      {label}{typeof score === "number" ? ` (${score})` : ""}
     </span>
   );
 }

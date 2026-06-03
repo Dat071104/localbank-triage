@@ -2,9 +2,11 @@ import { useEffect, useState } from "react";
 import type { RuntimeStatus } from "../api/types";
 import { useAuth } from "../auth/AuthContext";
 import { ErrorBanner } from "../components/ErrorBanner";
+import { useI18n } from "../i18n";
 
 export function RuntimeStatusPage() {
   const { api } = useAuth();
+  const { t } = useI18n();
   const [items, setItems] = useState<RuntimeStatus[]>([]);
   const [error, setError] = useState<Error | null>(null);
 
@@ -13,7 +15,7 @@ export function RuntimeStatusPage() {
     try {
       setItems(await api.getRuntimeStatus());
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Could not check runtime status."));
+      setError(err instanceof Error ? err : new Error(t("runtime.loadError")));
     }
   }
 
@@ -25,10 +27,10 @@ export function RuntimeStatusPage() {
     <main className="page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Local runtime</p>
-          <h1>Runtime Status</h1>
+          <p className="eyebrow">{t("runtime.eyebrow")}</p>
+          <h1>{t("runtime.title")}</h1>
         </div>
-        <button onClick={load}>Check again</button>
+        <button onClick={load}>{t("runtime.check")}</button>
       </header>
       {error && <ErrorBanner error={error} />}
       <section className="runtime-grid">
@@ -41,10 +43,10 @@ export function RuntimeStatusPage() {
         ))}
       </section>
       <section className="setup-commands">
-        <h2>Real mode startup</h2>
+        <h2>{t("runtime.realMode")}</h2>
         <pre>{`docker compose up -d postgres redis qdrant
 cd "D:\\Project cua Dat\\Localbank-triage"
-# start auth-service, api-gateway, classifier, urgency, rag, llm, worker in separate terminals
+# mở auth-service, api-gateway, classifier, urgency, rag, llm, worker ở các terminal riêng
 cd frontend-app
 $env:VITE_API_MODE="real"; npm run dev`}</pre>
       </section>

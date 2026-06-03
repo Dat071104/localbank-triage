@@ -9,9 +9,11 @@ import { PolicyEvidenceCard } from "../components/PolicyEvidenceCard";
 import { RoleGuard } from "../components/RoleGuard";
 import { StatusBadge } from "../components/StatusBadge";
 import { UrgencyBadge } from "../components/UrgencyBadge";
+import { statusLabel, useI18n } from "../i18n";
 
 export function TriageWorkspacePage({ ticketId, onTicketChange }: { ticketId: string | null; onTicketChange: (ticketId: string) => void }) {
   const { api, employee } = useAuth();
+  const { t } = useI18n();
   const [ticket, setTicket] = useState<Ticket | null>(null);
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -23,13 +25,13 @@ export function TriageWorkspacePage({ ticketId, onTicketChange }: { ticketId: st
   useEffect(() => {
     if (!ticketId) return;
     setError(null);
-    void api.getTicket(ticketId).then(setTicket).catch((err) => setError(err instanceof Error ? err : new Error("Could not load ticket.")));
+    void api.getTicket(ticketId).then(setTicket).catch((err) => setError(err instanceof Error ? err : new Error(t("workspace.loadTicketError"))));
     void api.getAnalysis(ticketId).then(setAnalysis).catch(() => undefined);
     void api.getDraft(ticketId).then((response) => setDraft(normalizeDraft(response))).catch(() => undefined);
-  }, [ticketId]);
+  }, [api, ticketId, t]);
 
   if (!employee) return null;
-  if (!ticketId) return <EmptyState title="No ticket selected" body="Open a ticket from the queue to begin triage." />;
+  if (!ticketId) return <EmptyState title={t("workspace.noTicketTitle")} body={t("workspace.noTicketBody")} />;
 
   async function runPipeline() {
     if (!ticketId) return;
@@ -47,7 +49,7 @@ export function TriageWorkspacePage({ ticketId, onTicketChange }: { ticketId: st
       const updated = await api.getTicket(ticketId);
       setTicket(updated);
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Pipeline failed."));
+      setError(err instanceof Error ? err : new Error(t("workspace.pipelineError")));
     } finally {
       setRunning(false);
     }
@@ -58,10 +60,10 @@ export function TriageWorkspacePage({ ticketId, onTicketChange }: { ticketId: st
     setError(null);
     try {
       const result = await api.reviewTicket(ticketId, { action, edited_draft_response: editedDraft });
-      setReviewMessage(`${result.action} recorded. Status: ${result.status}`);
+      setReviewMessage(`${result.action} ${t("workspace.reviewRecorded")}: ${statusLabel(result.status, t)}`);
       setTicket((current) => (current ? { ...current, status: result.status } : current));
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Review action failed."));
+      setError(err instanceof Error ? err : new Error(t("workspace.reviewError")));
     }
   }
 
@@ -69,14 +71,14 @@ export function TriageWorkspacePage({ ticketId, onTicketChange }: { ticketId: st
     <main className="page">
       <header className="page-header">
         <div>
-          <p className="eyebrow">Workspace</p>
-          <h1>Triage Detail Workspace</h1>
+          <p className="eyebrow">{t("workspace.eyebrow")}</p>
+          <h1>{t("workspace.title")}</h1>
         </div>
         <div className="header-actions">
-          <button onClick={() => onTicketChange(ticketId)}>Reload</button>
-          <RoleGuard role={employee.role} allowed={["CS_AGENT", "SUPERVISOR", "ADMIN"]} fallback={<span className="restriction-note">Read-only</span>}>
+          <button onClick={() => onTicketChange(ticketId)}>{t("workspace.reload")}</button>
+          <RoleGuard role={employee.role} allowed={["CS_AGENT", "SUPERVISOR", "ADMIN"]} fallback={<span className="restriction-note">{t("workspace.readonly")}</span>}>
             <button className="primary" disabled={running} onClick={runPipeline}>
-              {running ? "Running local pipeline..." : "Analyze and draft"}
+              {running ? t("workspace.running") : t("workspace.run")}
             </button>
           </RoleGuard>
         </div>
@@ -86,31 +88,32 @@ export function TriageWorkspacePage({ ticketId, onTicketChange }: { ticketId: st
       <PipelineProgress activeStep={activeStep} running={running} />
       <section className="triage-grid">
         <aside className="triage-column">
-          <h2>Customer ticket</h2>
+          <h2>{t("workspace.customerTicket")}</h2>
           {ticket ? (
             <>
-              <div className="kv"><span>Ticket</span><strong>{ticket.ticket_id}</strong></div>
-              <div className="kv"><span>Status</span><StatusBadge status={ticket.status} /></div>
+              <div className="kv"><span>{t("workspace.ticket")}</span><strong>{ticket.ticket_id}</strong></div>
+              <div className="kv"><span>{t("workspace.status")}</span><StatusBadge status={ticket.status} /></div>
+              {ticket.display_title && <h3>{ticket.display_title}</h3>}
               <p className="customer-text">{ticket.customer_text}</p>
             </>
           ) : (
-            <div className="empty-state">Loading ticket...</div>
+            <div className="empty-state">{t("workspace.loadingTicket")}</div>
           )}
           {analysis && (
             <div className="analysis-block">
-              <h2>Intent and urgency</h2>
-              <div className="kv"><span>Intent</span><strong>{analysis.classification.intent}</strong></div>
-              <div className="kv"><span>Confidence</span><strong>{Math.round(analysis.classification.intent_confidence * 100)}%</strong></div>
-              <div className="kv"><span>Sentiment</span><strong>{analysis.classification.sentiment}</strong></div>
+              <h2>{t("workspace.intentUrgency")}</h2>
+              <div className="kv"><span>{t("queue.intent")}</span><strong>{analysis.classification.intent}</strong></div>
+              <div className="kv"><span>{t("workspace.confidence")}</span><strong>{Math.round(analysis.classification.intent_confidence * 100)}%</strong></div>
+              <div className="kv"><span>{t("workspace.sentiment")}</span><strong>{analysis.classification.sentiment}</strong></div>
               <UrgencyBadge level={analysis.urgency.urgency_level} score={analysis.urgency.urgency_score} />
               <ul>{analysis.urgency.reason_codes.map((code) => <li key={code}>{code}</li>)}</ul>
             </div>
           )}
         </aside>
         <section className="triage-column evidence-column">
-          <h2>Policy evidence</h2>
-          {analysis && analysis.evidence.length === 0 && <EmptyState title="No policy match" body="Manual review is required because no reliable policy context was retrieved." />}
-          {analysis ? analysis.evidence.map((item) => <PolicyEvidenceCard key={item.chunk_id} evidence={item} />) : <div className="empty-state">Run analysis to retrieve policy evidence.</div>}
+          <h2>{t("workspace.policyEvidence")}</h2>
+          {analysis && analysis.evidence.length === 0 && <EmptyState title={t("workspace.noPolicyTitle")} body={t("workspace.noPolicyBody")} />}
+          {analysis ? analysis.evidence.map((item) => <PolicyEvidenceCard key={item.chunk_id} evidence={item} />) : <div className="empty-state">{t("workspace.policyEmpty")}</div>}
         </section>
         <aside className="triage-column">
           <DraftReviewPanel

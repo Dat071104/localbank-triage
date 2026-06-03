@@ -2,16 +2,18 @@ import { FormEvent, useState } from "react";
 import type { Role } from "../api/types";
 import { useAuth } from "./AuthContext";
 import { ErrorBanner } from "../components/ErrorBanner";
+import { roleLabel, useI18n } from "../i18n";
 
 const roleDefaults: Record<Role, { employee_id: string; full_name: string; access_code: string }> = {
-  CS_AGENT: { employee_id: "LBT-CS-0001", full_name: "Nguyễn Hà Trâm", access_code: "LOCAL_ONLY_CHANGE_ME_CS_AGENT" },
-  SUPERVISOR: { employee_id: "LBT-SUP-0001", full_name: "Lê Minh Quân", access_code: "LOCAL_ONLY_CHANGE_ME_SUPERVISOR" },
-  AUDITOR: { employee_id: "LBT-AUD-0001", full_name: "Phạm Thu Linh", access_code: "LOCAL_ONLY_CHANGE_ME_AUDITOR" },
-  ADMIN: { employee_id: "LBT-ADM-0001", full_name: "Đỗ Minh Anh", access_code: "LOCAL_ONLY_CHANGE_ME_ADMIN" }
+  CS_AGENT: { employee_id: "LBT-CS-0001", full_name: "Nguyen Ha Tram", access_code: "LOCAL_ONLY_CHANGE_ME_CS_AGENT" },
+  SUPERVISOR: { employee_id: "LBT-SUP-0001", full_name: "Le Minh Quan", access_code: "LOCAL_ONLY_CHANGE_ME_SUPERVISOR" },
+  AUDITOR: { employee_id: "LBT-AUD-0001", full_name: "Pham Thu Linh", access_code: "LOCAL_ONLY_CHANGE_ME_AUDITOR" },
+  ADMIN: { employee_id: "LBT-ADM-0001", full_name: "Do Minh Anh", access_code: "LOCAL_ONLY_CHANGE_ME_ADMIN" }
 };
 
 export function LoginPage() {
   const { login, api } = useAuth();
+  const { t } = useI18n();
   const [role, setRole] = useState<Role>("CS_AGENT");
   const [employeeId, setEmployeeId] = useState(roleDefaults.CS_AGENT.employee_id);
   const [fullName, setFullName] = useState(roleDefaults.CS_AGENT.full_name);
@@ -30,7 +32,7 @@ export function LoginPage() {
     event.preventDefault();
     setError(null);
     if (!employeeId.trim() || !fullName.trim() || !accessCode.trim()) {
-      setError(new Error("Employee ID, full name, and access code are required."));
+      setError(new Error(t("login.required")));
       return;
     }
     setSubmitting(true);
@@ -43,7 +45,7 @@ export function LoginPage() {
         mock_role: role
       });
     } catch (err) {
-      setError(err instanceof Error ? err : new Error("Login failed."));
+      setError(err instanceof Error ? err : new Error(t("login.failed")));
     } finally {
       setSubmitting(false);
     }
@@ -52,34 +54,34 @@ export function LoginPage() {
   return (
     <main className="login-shell">
       <section className="login-panel" aria-labelledby="login-title">
-        <p className="eyebrow">Local-first staff access</p>
-        <h1 id="login-title">LocalBank Triage</h1>
-        <p className="supporting">Secure local workspace for banking ticket triage, policy evidence, draft review, and approval control.</p>
+        <p className="eyebrow">{t("login.eyebrow")}</p>
+        <h1 id="login-title">{t("app.product")}</h1>
+        <p className="supporting">{t("login.supporting")}</p>
         <form onSubmit={submit} className="login-form">
           {api.mode === "mock" && (
             <fieldset className="role-picker">
-              <legend>Mock role</legend>
+              <legend>{t("login.mockRole")}</legend>
               {(["CS_AGENT", "SUPERVISOR", "AUDITOR", "ADMIN"] as Role[]).map((item) => (
                 <button key={item} type="button" className={role === item ? "selected" : ""} onClick={() => chooseRole(item)}>
-                  {item.replace("_", " ")}
+                  {roleLabel(item, t).replace("_", " ")}
                 </button>
               ))}
             </fieldset>
           )}
           <label>
-            Employee ID
+            {t("login.employeeId")}
             <input value={employeeId} onChange={(event) => setEmployeeId(event.target.value)} autoComplete="username" />
           </label>
           <label>
-            Full name
+            {t("login.fullName")}
             <input value={fullName} onChange={(event) => setFullName(event.target.value)} autoComplete="name" />
           </label>
           <label>
-            Access code
+            {t("login.accessCode")}
             <input value={accessCode} onChange={(event) => setAccessCode(event.target.value)} type="password" autoComplete="current-password" />
           </label>
           <button className="primary" disabled={submitting} type="submit">
-            {submitting ? "Checking local session..." : "Enter workspace"}
+            {submitting ? t("login.submitting") : t("login.submit")}
           </button>
         </form>
         {error && <ErrorBanner error={error} />}

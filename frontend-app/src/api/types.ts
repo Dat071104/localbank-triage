@@ -24,9 +24,15 @@ export interface LoginResponse {
 
 export interface Ticket {
   ticket_id: string;
+  display_title?: string;
   customer_text: string;
   status: string;
   created_by: string;
+  created_at?: string;
+  source?: string;
+  intent?: string;
+  urgency_level?: UrgencyLevel;
+  urgency_score?: number;
 }
 
 export interface Classification {

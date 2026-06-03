@@ -6,6 +6,7 @@ import { TicketQueuePage } from "./pages/TicketQueuePage";
 import { TriageWorkspacePage } from "./pages/TriageWorkspacePage";
 import { AuditPage } from "./pages/AuditPage";
 import { RuntimeStatusPage } from "./pages/RuntimeStatusPage";
+import { I18nProvider } from "./i18n";
 
 function Workspace() {
   const { employee } = useAuth();
@@ -26,8 +27,10 @@ function Workspace() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Workspace />
-    </AuthProvider>
+    <I18nProvider>
+      <AuthProvider>
+        <Workspace />
+      </AuthProvider>
+    </I18nProvider>
   );
 }
