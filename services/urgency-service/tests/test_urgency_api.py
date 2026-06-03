@@ -13,6 +13,15 @@ def test_health_works() -> None:
     assert response.json() == {"status": "ok"}
 
 
+def test_metrics_endpoint_exposes_prometheus_text() -> None:
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert "service_request_count_total" in response.text
+    assert "urgency_score_seconds" in response.text
+    assert "critical_ticket_count_total" in response.text
+
+
 def test_high_or_critical_auto_send_is_disabled() -> None:
     response = client.post(
         "/score-urgency",

@@ -13,6 +13,7 @@ class GatewayConfig:
     rag_service_url: str = "http://localhost:8003"
     llm_service_url: str = "http://localhost:8004"
     timeout_seconds: int = 20
+    worker_internal_token: str = "local-dev-worker-token"
 
 
 def get_config() -> GatewayConfig:
@@ -27,5 +28,5 @@ def get_config() -> GatewayConfig:
         rag_service_url=os.getenv("RAG_SERVICE_URL", "http://localhost:8003").rstrip("/"),
         llm_service_url=os.getenv("LLM_SERVICE_URL", "http://localhost:8004").rstrip("/"),
         timeout_seconds=int(os.getenv("GATEWAY_SERVICE_TIMEOUT_SECONDS", "20")),
+        worker_internal_token=os.getenv("WORKER_INTERNAL_TOKEN", "local-dev-worker-token"),
     )
-

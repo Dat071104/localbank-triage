@@ -221,6 +221,8 @@ __marimo__/
 _local_ai_ops/
 .zone_context.md
 *.zip
+PHASE*_READINESS_AUDIT_PASS_*.md
+POST_FIX_REPORT.md
 
 # Environment / secrets
 .env
@@ -241,6 +243,9 @@ qdrant_storage/
 storage/
 postgres_data/
 redis_data/
+minio_data/
+prometheus_data/
+grafana_data/
 dump.rdb
 
 # Python
@@ -257,6 +262,14 @@ node_modules/
 dist/
 build/
 .vite/
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+
+# Tauri
+src-tauri/target/
+src-tauri/gen/
 
 # Editor / OS
 .vscode/

@@ -15,6 +15,9 @@ from sqlalchemy.pool import StaticPool
 os.environ["GATEWAY_DATABASE_URL"] = "sqlite+pysqlite:///:memory:"
 
 SERVICE_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = Path(__file__).resolve().parents[3]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 if str(SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(SERVICE_ROOT))
 
@@ -140,4 +143,3 @@ def make_client() -> Generator[Callable[..., TestClient], None, None]:
 
     yield _make
     app.dependency_overrides.clear()
-

@@ -13,6 +13,14 @@ def test_health_works() -> None:
     assert response.json() == {"status": "ok"}
 
 
+def test_metrics_endpoint_exposes_prometheus_text() -> None:
+    response = client.get("/metrics")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("text/plain")
+    assert "service_request_count_total" in response.text
+    assert "classifier_classify_seconds" in response.text
+
+
 def test_empty_customer_text_rejected() -> None:
     response = client.post(
         "/classify",

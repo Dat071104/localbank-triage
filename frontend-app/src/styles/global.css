@@ -1,0 +1,422 @@
+:root {
+  font-family: Inter, "Segoe UI", Arial, sans-serif;
+  color: #14213d;
+  background: #f5f7fb;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #b8c2d6;
+  background: #ffffff;
+  color: #14213d;
+  border-radius: 6px;
+  padding: 0.55rem 0.8rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
+button.primary {
+  background: #0f766e;
+  border-color: #0f766e;
+  color: #ffffff;
+  font-weight: 700;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+textarea,
+input {
+  width: 100%;
+  border: 1px solid #b8c2d6;
+  border-radius: 6px;
+  padding: 0.7rem;
+  background: #ffffff;
+}
+
+textarea {
+  min-height: 112px;
+  resize: vertical;
+}
+
+label {
+  display: grid;
+  gap: 0.35rem;
+  font-weight: 700;
+}
+
+.login-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #e7f5f2, #f5f7fb);
+  padding: 1rem;
+}
+
+.login-panel {
+  width: min(560px, 100%);
+  background: #ffffff;
+  border: 1px solid #d9e1ee;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 18px 50px rgba(20, 33, 61, 0.12);
+}
+
+.login-form,
+.create-ticket {
+  display: grid;
+  gap: 1rem;
+}
+
+.role-picker {
+  border: 1px solid #d9e1ee;
+  border-radius: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.8rem;
+}
+
+.role-picker legend {
+  font-weight: 700;
+}
+
+.role-picker .selected,
+.sidebar button.active {
+  background: #14213d;
+  color: #ffffff;
+  border-color: #14213d;
+}
+
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+}
+
+.sidebar {
+  background: #14213d;
+  color: #ffffff;
+  padding: 1.2rem;
+  display: grid;
+  align-content: space-between;
+  gap: 1rem;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.sidebar button {
+  text-align: left;
+}
+
+.language-toggle {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.45rem;
+}
+
+.language-toggle button {
+  text-align: center;
+}
+
+.language-toggle button.active {
+  background: #ffffff;
+  color: #14213d;
+  border-color: #ffffff;
+  font-weight: 800;
+}
+
+.session-card {
+  display: grid;
+  gap: 0.4rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.22);
+  padding-top: 1rem;
+}
+
+.content-shell {
+  min-width: 0;
+  padding: 1rem;
+}
+
+.page {
+  display: grid;
+  gap: 1rem;
+}
+
+.page-header,
+.panel-heading,
+.header-actions,
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.eyebrow {
+  color: #0f766e;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.supporting,
+.restriction-note {
+  color: #526070;
+}
+
+.ticket-list,
+.audit-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.ticket-row,
+.audit-row,
+.runtime-card,
+.empty-state,
+.error-banner,
+.success-banner,
+.triage-column,
+.evidence-card,
+.setup-commands {
+  background: #ffffff;
+  border: 1px solid #d9e1ee;
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+.ticket-row,
+.audit-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, auto) auto;
+  gap: 1rem;
+  align-items: center;
+}
+
+.ticket-row h2 {
+  font-size: 1rem;
+  margin: 0.25rem 0;
+}
+
+.ticket-row p,
+.customer-text {
+  color: #526070;
+  overflow-wrap: anywhere;
+}
+
+.ticket-meta,
+.ticket-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.ticket-meta {
+  color: #526070;
+  font-size: 0.86rem;
+}
+
+.ticket-badges {
+  justify-content: flex-start;
+}
+
+.triage-grid {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.9fr) minmax(320px, 1.15fr) minmax(300px, 1fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.triage-column,
+.draft-panel {
+  display: grid;
+  gap: 1rem;
+}
+
+.evidence-card.restricted {
+  border-color: #b91c1c;
+}
+
+.evidence-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  color: #526070;
+  font-size: 0.86rem;
+}
+
+.do-not,
+.supervisor-alert {
+  border-left: 4px solid #b91c1c;
+  background: #fff1f2;
+  color: #7f1d1d;
+  padding: 0.65rem;
+  font-weight: 800;
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border-bottom: 1px solid #edf1f7;
+  padding-bottom: 0.45rem;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 0.28rem 0.58rem;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.badge.neutral {
+  background: #edf1f7;
+  color: #28364d;
+}
+
+.urgency.low {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.urgency.medium {
+  background: #fef3c7;
+  color: #78350f;
+}
+
+.urgency.high {
+  background: #ffedd5;
+  color: #7c2d12;
+}
+
+.urgency.critical {
+  background: #fee2e2;
+  color: #7f1d1d;
+  border: 2px solid #b91c1c;
+}
+
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 0.5rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.pipeline li {
+  background: #ffffff;
+  border: 1px solid #d9e1ee;
+  border-radius: 8px;
+  padding: 0.7rem;
+  min-height: 72px;
+}
+
+.pipeline li span {
+  display: block;
+  font-size: 0.72rem;
+  color: #526070;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.pipeline li.active {
+  border-color: #0f766e;
+  box-shadow: inset 0 0 0 2px #0f766e;
+}
+
+.pipeline li.done {
+  background: #ecfdf5;
+  border-color: #0f766e;
+}
+
+.review-lists,
+.runtime-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.runtime-card.ok,
+.runtime-card.mock {
+  border-color: #0f766e;
+}
+
+.runtime-card.offline {
+  border-color: #b91c1c;
+}
+
+.error-banner {
+  border-color: #b91c1c;
+  background: #fff1f2;
+  color: #7f1d1d;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.success-banner {
+  border-color: #0f766e;
+  background: #ecfdf5;
+  color: #14532d;
+  font-weight: 800;
+}
+
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+@media (max-width: 1080px) {
+  .app-shell,
+  .triage-grid,
+  .pipeline,
+  .review-lists,
+  .runtime-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+  }
+
+  .ticket-row,
+  .audit-row {
+    grid-template-columns: 1fr;
+  }
+}

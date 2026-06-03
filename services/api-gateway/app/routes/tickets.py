@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from ..db import get_db
-from ..models import Ticket
+from ..models import Ticket, WorkerJobResult
+from ..privacy import redact_customer_text
 from ..rbac import READ_ROLES, WRITE_ROLES, require_role
-from ..schemas import AnalysisResponse, DraftResponse, Employee, TicketCreateRequest, TicketResponse
+from ..schemas import AnalysisResponse, DraftResponse, Employee, TicketCreateRequest, TicketResponse, WorkerResultResponse
 from ..service_clients import DownstreamClients, get_clients, get_current_user
 from ..workflow import add_audit, evidence_to_context, save_analysis, save_draft
 
@@ -23,7 +24,7 @@ def _ticket_or_404(db: Session, ticket_id: str) -> Ticket:
 def _ticket_response(ticket: Ticket) -> TicketResponse:
     return TicketResponse(
         ticket_id=ticket.ticket_id,
-        customer_text=ticket.customer_text,
+        customer_text=redact_customer_text(ticket.customer_text),
         status=ticket.status,
         created_by=ticket.created_by,
     )
@@ -47,9 +48,19 @@ def create_ticket(
 
 
 @router.get("", response_model=list[TicketResponse])
-def list_tickets(db: Session = Depends(get_db), user: Employee = Depends(get_current_user)) -> list[TicketResponse]:
+def list_tickets(
+    db: Session = Depends(get_db),
+    user: Employee = Depends(get_current_user),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    status_filter: str | None = Query(default=None, alias="status"),
+) -> list[TicketResponse]:
     require_role(user, READ_ROLES)
-    return [_ticket_response(ticket) for ticket in db.query(Ticket).order_by(Ticket.created_at.desc()).all()]
+    query = db.query(Ticket)
+    if status_filter:
+        query = query.filter(Ticket.status == status_filter)
+    tickets = query.order_by(Ticket.created_at.desc()).offset(offset).limit(limit).all()
+    return [_ticket_response(ticket) for ticket in tickets]
 
 
 @router.get("/{ticket_id}", response_model=TicketResponse)
@@ -140,3 +151,16 @@ def get_draft(ticket_id: str, db: Session = Depends(get_db), user: Employee = De
     draft = sorted(ticket.drafts, key=lambda item: item.created_at)[-1]
     return DraftResponse(ticket_id=ticket.ticket_id, draft=draft.draft, edited_draft_response=draft.edited_draft_response)
 
+
+@router.get("/{ticket_id}/triage-result", response_model=WorkerResultResponse)
+def get_triage_result(ticket_id: str, db: Session = Depends(get_db), user: Employee = Depends(get_current_user)) -> WorkerResultResponse:
+    require_role(user, READ_ROLES)
+    result = (
+        db.query(WorkerJobResult)
+        .filter(WorkerJobResult.ticket_id == ticket_id)
+        .order_by(WorkerJobResult.updated_at.desc())
+        .first()
+    )
+    if result is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Worker result not found")
+    return WorkerResultResponse(job_id=result.job_id, ticket_id=result.ticket_id, status=result.status, result=result.result)

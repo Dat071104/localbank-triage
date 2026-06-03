@@ -32,3 +32,4 @@ For llama.cpp server-compatible runtimes, use `LLM_BACKEND=llama_cpp` and set `L
 
 The service never auto-sends customer responses. HIGH/CRITICAL drafts are forced to `auto_send_allowed=false`; CRITICAL requires supervisor approval.
 
+`raw_model_output` is hidden by default in `/draft/generate` responses. Set `LLM_EXPOSE_RAW_MODEL_OUTPUT=true` only for local debugging. Evaluation metrics report fallback rate separately so fallback safety does not appear as raw model quality.

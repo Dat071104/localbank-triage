@@ -68,3 +68,15 @@ class AuditLogResponse(BaseModel):
     actor_role: str
     details: dict[str, Any]
 
+
+class WorkerResultRequest(BaseModel):
+    ticket_id: str = Field(min_length=1, max_length=64)
+    status: str = Field(min_length=1, max_length=32)
+    result: dict[str, Any]
+
+
+class WorkerResultResponse(BaseModel):
+    job_id: str
+    ticket_id: str
+    status: str
+    result: dict[str, Any]

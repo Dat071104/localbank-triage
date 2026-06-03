@@ -1,0 +1,11 @@
+[
+  {
+    "employee_id": "LBT-CS-0001",
+    "full_name": "Nguyen Ha Tram",
+    "display_name": "Tram Nguyen",
+    "access_code": "LOCAL_ONLY_CHANGE_ME_CS_AGENT",
+    "role": "CS_AGENT",
+    "department": "Customer Support",
+    "branch_code": "HCM-01"
+  }
+]

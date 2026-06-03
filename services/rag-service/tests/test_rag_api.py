@@ -12,6 +12,14 @@ def test_index_endpoint_works() -> None:
         assert response.json()["indexed_chunks"] > 0
 
 
+def test_metrics_endpoint_exposes_prometheus_text() -> None:
+    with TestClient(app) as client:
+        response = client.get("/metrics")
+        assert response.status_code == 200
+        assert response.headers["content-type"].startswith("text/plain")
+        assert "rag_search_seconds" in response.text
+
+
 def test_search_response_schema_stable() -> None:
     with TestClient(app) as client:
         client.post("/rag/index")
