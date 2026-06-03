@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "identifier": "com.localbank.triage",
   "build": {
-    "beforeDevCommand": "cd frontend-app && npm run dev -- --port 5173",
-    "beforeBuildCommand": "cd frontend-app && npm run build",
+    "beforeDevCommand": "cd ../frontend-app && npm run dev -- --port 5173",
+    "beforeBuildCommand": "cd ../frontend-app && npm run build",
     "devUrl": "http://127.0.0.1:5173",
     "frontendDist": "../frontend-app/dist"
   },
@@ -27,6 +27,9 @@
   },
   "bundle": {
     "active": true,
-    "targets": "all"
+    "targets": "all",
+    "icon": [
+      "icons/icon.ico"
+    ]
   }
 }
