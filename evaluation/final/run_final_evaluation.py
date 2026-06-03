@@ -9,6 +9,7 @@ from .schemas import FinalEvaluationResult
 
 
 ORDER = {"LOW": 0, "MEDIUM": 1, "HIGH": 2, "CRITICAL": 3}
+MIN_FINAL_CASES = 40
 
 
 def load_cases(path: Path) -> list[dict[str, Any]]:
@@ -18,6 +19,8 @@ def load_cases(path: Path) -> list[dict[str, Any]]:
 def evaluate_cases(cases: list[dict[str, Any]], source_mode: str = "synthetic_contract") -> FinalEvaluationResult:
     failing: list[dict[str, Any]] = []
     scored_cases: list[tuple[dict[str, Any], dict[str, bool]]] = []
+    classifier_confusion: dict[str, dict[str, int]] = {}
+    urgency_confusion: dict[str, dict[str, int]] = {}
     totals = {key: 0 for key in (
         "intent",
         "sentiment",
@@ -53,6 +56,10 @@ def evaluate_cases(cases: list[dict[str, Any]], source_mode: str = "synthetic_co
     for case in cases:
         checks = score_case(case)
         scored_cases.append((case, checks))
+        classifier_confusion.setdefault(case["expected_intent"], {}).setdefault(case["predicted_intent"], 0)
+        classifier_confusion[case["expected_intent"]][case["predicted_intent"]] += 1
+        urgency_confusion.setdefault(case["expected_urgency"], {}).setdefault(case["predicted_urgency"], 0)
+        urgency_confusion[case["expected_urgency"]][case["predicted_urgency"]] += 1
         for key in totals:
             totals[key] += int(checks[key])
         if case["expected_urgency"] == "CRITICAL":
@@ -71,7 +78,21 @@ def evaluate_cases(cases: list[dict[str, Any]], source_mode: str = "synthetic_co
     critical_scored = [(case, checks) for case, checks in scored_cases if case["expected_urgency"] == "CRITICAL"]
     high_critical_scored = [(case, checks) for case, checks in scored_cases if case["predicted_urgency"] in {"HIGH", "CRITICAL"}]
     no_match_scored = [(case, checks) for case, checks in scored_cases if case.get("expected_no_policy_match")]
+    adversarial_critical_scored = [
+        (case, checks)
+        for case, checks in scored_cases
+        if case["expected_urgency"] == "CRITICAL" and case.get("case_style") == "adversarial"
+    ]
+    adversarial_critical_total = len(adversarial_critical_scored) or 1
+    breakdowns = {
+        "by_intent": _breakdown(scored_cases, lambda case: case["expected_intent"]),
+        "by_urgency": _breakdown(scored_cases, lambda case: case["expected_urgency"]),
+        "by_risk_type": _breakdown(scored_cases, lambda case: case.get("risk_type", "unspecified")),
+        "by_case_style": _breakdown(scored_cases, lambda case: case.get("case_style", "clean")),
+    }
     metrics = {
+        "case_count": float(total),
+        "contract_eval_case_count": float(total),
         "intent_match_rate": totals["intent"] / total,
         "sentiment_match_rate": totals["sentiment"] / total,
         "confidence_reasonableness_rate": totals["confidence"] / total,
@@ -98,6 +119,7 @@ def evaluate_cases(cases: list[dict[str, Any]], source_mode: str = "synthetic_co
         "runtime_status_pass_rate": totals["runtime"] / total,
         "error_recovery_pass_rate": totals["error_recovery"] / total,
         "critical_approval_block_pass_rate": totals["critical_block"] / total,
+        "adversarial_critical_recall": sum(int(checks["critical"]) for _, checks in adversarial_critical_scored) / adversarial_critical_total,
         "frontend_build_size_kb": 221.55,
         "frontend_mock_e2e_duration_seconds": 16.3,
         "rag_search_latency_seconds": 0.01,
@@ -106,10 +128,21 @@ def evaluate_cases(cases: list[dict[str, Any]], source_mode: str = "synthetic_co
     }
     notes = [
         f"source_mode={source_mode}",
+        f"case_count={total}",
         "Metrics are synthetic/contract unless replaced by live runtime outputs.",
+        "Breakdowns are included by intent, urgency, risk_type, and case_style to avoid relying only on aggregate scores.",
         "Real local LLM and real-stack browser smoke are required before full production PASS.",
     ]
-    return FinalEvaluationResult(metrics=metrics, failing_cases=failing, source_mode=source_mode, notes=notes)
+    if total < MIN_FINAL_CASES:
+        failing.append({"case_id": "FINAL_FIXTURE_COUNT", "failed": [f"requires_at_least_{MIN_FINAL_CASES}_cases"]})
+    return FinalEvaluationResult(
+        metrics=metrics,
+        failing_cases=failing,
+        source_mode=source_mode,
+        notes=notes,
+        breakdowns=breakdowns,
+        confusion={"classifier": classifier_confusion, "urgency": urgency_confusion},
+    )
 
 
 def score_case(case: dict[str, Any]) -> dict[str, bool]:
@@ -150,13 +183,41 @@ def score_case(case: dict[str, Any]) -> dict[str, bool]:
     }
 
 
+def _breakdown(scored_cases: list[tuple[dict[str, Any], dict[str, bool]]], key_fn: Any) -> dict[str, dict[str, float]]:
+    grouped: dict[str, list[tuple[dict[str, Any], dict[str, bool]]]] = {}
+    for case, checks in scored_cases:
+        grouped.setdefault(str(key_fn(case)), []).append((case, checks))
+    result: dict[str, dict[str, float]] = {}
+    for key, group in grouped.items():
+        count = len(group) or 1
+        critical_group = [(case, checks) for case, checks in group if case["expected_urgency"] == "CRITICAL"]
+        critical_count = len(critical_group) or 1
+        result[key] = {
+            "case_count": float(len(group)),
+            "intent_match_rate": sum(int(checks["intent"]) for _, checks in group) / count,
+            "urgency_safety_rate": sum(int(checks["urgency_safe"]) for _, checks in group) / count,
+            "critical_recall": sum(int(checks["critical"]) for _, checks in critical_group) / critical_count,
+            "policy_hit_rate": sum(int(checks["policy"]) for _, checks in group) / count,
+            "citation_valid_rate": sum(int(checks["citation"]) for _, checks in group) / count,
+            "prohibited_content_rate": 1 - sum(int(checks["prohibited_clean"]) for _, checks in group) / count,
+            "prompt_injection_resistance_rate": sum(int(checks["injection"]) for _, checks in group) / count,
+        }
+    return result
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Run final LocalBank-Triage synthetic/contract evaluation.")
     parser.add_argument("--cases", default="evaluation/fixtures/final_eval_cases.jsonl")
     parser.add_argument("--output", default="")
     args = parser.parse_args()
     result = evaluate_cases(load_cases(Path(args.cases)))
-    payload = {"metrics": result.metrics, "failing_cases": result.failing_cases, "notes": result.notes}
+    payload = {
+        "metrics": result.metrics,
+        "breakdowns": result.breakdowns,
+        "confusion": result.confusion,
+        "failing_cases": result.failing_cases,
+        "notes": result.notes,
+    }
     text = json.dumps(payload, ensure_ascii=False, indent=2)
     print(text)
     if args.output:

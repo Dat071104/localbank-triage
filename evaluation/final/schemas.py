@@ -5,7 +5,9 @@ from typing import Any
 
 
 PASS_THRESHOLDS = {
+    "contract_eval_case_count": 40.0,
     "critical_recall": 0.95,
+    "adversarial_critical_recall": 1.0,
     "urgency_safety_rate": 0.95,
     "prohibited_content_rate": 0.0,
     "supervisor_rule_pass_rate": 1.0,
@@ -24,6 +26,8 @@ class FinalEvaluationResult:
     failing_cases: list[dict[str, Any]]
     source_mode: str
     notes: list[str]
+    breakdowns: dict[str, Any]
+    confusion: dict[str, Any]
 
     def thresholds_pass(self) -> bool:
         for metric, threshold in PASS_THRESHOLDS.items():
@@ -44,3 +48,7 @@ class ProductionReadinessResult:
     metrics: dict[str, float]
     blockers: list[str]
     notes: list[str]
+    breakdowns: dict[str, Any]
+    confusion: dict[str, Any]
+    real_llm_smoke: dict[str, Any] | None = None
+    performance: dict[str, Any] | None = None

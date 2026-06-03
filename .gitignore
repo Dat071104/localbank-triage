@@ -221,6 +221,8 @@ __marimo__/
 _local_ai_ops/
 .zone_context.md
 *.zip
+PHASE*_READINESS_AUDIT_PASS_*.md
+POST_FIX_REPORT.md
 
 # Environment / secrets
 .env

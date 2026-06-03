@@ -11,9 +11,11 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- --port 5173",
     url: "http://127.0.0.1:5173",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: process.env.E2E_REAL_STACK === "1" ? false : !process.env.CI,
     env: {
-      VITE_API_MODE: "mock"
+      VITE_API_MODE: process.env.VITE_API_MODE ?? "mock",
+      VITE_GATEWAY_BASE_URL: process.env.VITE_GATEWAY_BASE_URL ?? "http://localhost:8005",
+      VITE_AUTH_SERVICE_URL: process.env.VITE_AUTH_SERVICE_URL ?? "http://localhost:8000"
     }
   },
   projects: [

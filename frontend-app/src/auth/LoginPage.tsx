@@ -4,10 +4,10 @@ import { useAuth } from "./AuthContext";
 import { ErrorBanner } from "../components/ErrorBanner";
 
 const roleDefaults: Record<Role, { employee_id: string; full_name: string; access_code: string }> = {
-  CS_AGENT: { employee_id: "cs001", full_name: "Mai Tran", access_code: "123456" },
-  SUPERVISOR: { employee_id: "sup001", full_name: "An Nguyen", access_code: "123456" },
-  AUDITOR: { employee_id: "aud001", full_name: "Linh Pham", access_code: "123456" },
-  ADMIN: { employee_id: "adm001", full_name: "Local Admin", access_code: "123456" }
+  CS_AGENT: { employee_id: "LBT-CS-0001", full_name: "Nguyễn Hà Trâm", access_code: "LOCAL_ONLY_CHANGE_ME_CS_AGENT" },
+  SUPERVISOR: { employee_id: "LBT-SUP-0001", full_name: "Lê Minh Quân", access_code: "LOCAL_ONLY_CHANGE_ME_SUPERVISOR" },
+  AUDITOR: { employee_id: "LBT-AUD-0001", full_name: "Phạm Thu Linh", access_code: "LOCAL_ONLY_CHANGE_ME_AUDITOR" },
+  ADMIN: { employee_id: "LBT-ADM-0001", full_name: "Đỗ Minh Anh", access_code: "LOCAL_ONLY_CHANGE_ME_ADMIN" }
 };
 
 export function LoginPage() {

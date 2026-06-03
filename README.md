@@ -72,6 +72,17 @@ Windows helper scripts:
 .\scripts\check_repo_hygiene.ps1
 ```
 
+Real-stack browser smoke, after the stack is healthy:
+
+```powershell
+cd "D:\Project cua Dat\Localbank-triage\frontend-app"
+$env:E2E_REAL_STACK="1"
+$env:VITE_API_MODE="real"
+$env:VITE_GATEWAY_BASE_URL="http://localhost:8005"
+$env:VITE_AUTH_SERVICE_URL="http://localhost:8000"
+npm run test:e2e:real
+```
+
 The Compose stack includes healthchecks for app services and infrastructure. `rag-service` runs with `RAG_AUTO_INDEX=true` in Compose and indexes the local policy KB if the Qdrant collection is empty. Destructive RAG reset is opt-in only with `RAG_RESET_INDEX=true`.
 
 Manual RAG indexing command:
@@ -106,9 +117,35 @@ Optional live smoke check:
 $env:LOCAL_LLM_SMOKE="1"
 $env:LLM_SERVICE_URL="http://127.0.0.1:8004"
 python .\scripts\smoke_local_llm.py
+python -m evaluation.final.production_readiness_check --real-llm-smoke
 ```
 
 For llama.cpp server-compatible runtimes, set `LLM_BACKEND=llama_cpp` and `LLM_LOCAL_BASE_URL` to the local server.
+
+The production-readiness real LLM smoke detects a local Ollama or llama.cpp-compatible endpoint, runs five banking draft cases, measures latency, and reports `NOT_RUN` when no local model is reachable. Do not treat fake-mode draft results as real model quality evidence.
+
+## Production Readiness Gates
+
+Run the final synthetic/contract evaluation and readiness report:
+
+```powershell
+python -m evaluation.final.run_final_evaluation
+python -m evaluation.final.production_readiness_check
+python -m evaluation.final.production_readiness_check --performance
+python -m evaluation.final.production_readiness_check --real-stack-smoke
+python -m evaluation.final.production_readiness_check --real-llm-smoke
+```
+
+Desktop packaging readiness:
+
+```powershell
+.\scripts\check_desktop_readiness.ps1
+cd "D:\Project cua Dat\Localbank-triage\frontend-app"
+npm run tauri:info
+npm run tauri:build
+```
+
+The final verdict must remain `PARTIAL PASS` if real local LLM smoke is not run. The web demo can pass independently of desktop packaging, but desktop readiness remains partial until Rust/Cargo, Microsoft C++ Build Tools, WebView2, and the Tauri build all pass in the active shell.
 
 ## Optional MLOps And Observability
 
